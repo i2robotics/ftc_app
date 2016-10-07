@@ -62,17 +62,12 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop POV", group="Test")
 public class TeleOpTest1 extends LinearOpMode {
-    DcMotor ne,nw,se,sw;
     @Override
     public void runOpMode() {
-        ne = hardwareMap.dcMotor.get("ne");
-        nw = hardwareMap.dcMotor.get("nw");
-        se = hardwareMap.dcMotor.get("se");
-        sw = hardwareMap.dcMotor.get("sw");
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         while (opModeIsActive()) {
-            OmniNav.setMotors(gamepad1.left_stick_x, gamepad1.left_stick_y,gamepad1.right_stick_x, ne,se,sw,nw);
+            OmniNav.setMotors(gamepad1.left_stick_x, gamepad1.left_stick_y,gamepad1.right_stick_x, hardwareMap);
         }
     }
 }
