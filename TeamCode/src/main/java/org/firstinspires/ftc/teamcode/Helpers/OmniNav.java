@@ -76,13 +76,17 @@ public class OmniNav {
         sw.setPower(sw_speed);
         nw.setPower(nw_speed);
     }
-    public static void setMotors(float x, float y, float rot, DcMotor ne, DcMotor se, DcMotor sw, DcMotor nw) {
+    public static void setMotors(float x, float y, float rot, HardwareMap hardwareMap) {
 //        double theta = Math.atan(x/y) - Math.PI/4;
         double scaler = 0.8;
         double drive = (double) -y;
         double strafe = (double) x;
         double spin = (double) rot;
-
+        DcMotor ne, nw, se, sw;
+        ne = hardwareMap.dcMotor.get("ne");
+        nw = hardwareMap.dcMotor.get("nw");
+        se = hardwareMap.dcMotor.get("se");
+        sw = hardwareMap.dcMotor.get("sw");
 
         /*rot *= .5;
         double magnitude = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
