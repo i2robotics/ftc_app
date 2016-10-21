@@ -32,19 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.teamcode.Helpers.OmniNav;
-
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.robot.Robot;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.RobotLog;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+import org.firstinspires.ftc.teamcode.Helpers.RobotControl;
 
 /**
  * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
@@ -60,14 +49,22 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop POV", group="Test")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop Testing", group="Test")
 public class TeleOpTest1 extends LinearOpMode {
+    RobotControl robot =new RobotControl(hardwareMap);
     @Override
     public void runOpMode() {
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         while (opModeIsActive()) {
-            OmniNav.setMotors(gamepad1.left_stick_x, gamepad1.left_stick_y,gamepad1.right_stick_x, hardwareMap);
+            robot.setMotors(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, hardwareMap);
+            if (gamepad1.left_bumper) {
+                robot.setHarvester(-1);
+            } else if (gamepad1.left_trigger >= .1) {
+                    robot.setHarvester(1);
+            } else {
+                robot.setHarvester(0);
+            }
         }
     }
 }
