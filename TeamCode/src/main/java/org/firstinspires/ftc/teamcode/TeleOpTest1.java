@@ -33,38 +33,76 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.teamcode.Helpers.RobotControl;
 
-/**
- * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
- * All device access is managed through the HardwarePushbot class.
- * The code is structured as a LinearOpMode
- *
- * This particular OpMode executes a POV Game style Teleop for a PushBot
- * In this mode the left stick moves the robot FWD and back, the Right stick turns left and right.
- * It raises and lowers the claw using the Gampad Y and A buttons respectively.
- * It also opens and closes the claws slowly using the left and right Bumper buttons.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
+
+
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop Testing", group="Test")
 public class TeleOpTest1 extends LinearOpMode {
-    RobotControl robot =new RobotControl(hardwareMap);
     @Override
     public void runOpMode() {
+        RobotControl robot =new RobotControl(hardwareMap);
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
+        double hoodPos = 0;
+
         while (opModeIsActive()) {
-            robot.setMotors(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, hardwareMap);
-            if (gamepad1.left_bumper) {
-                robot.setHarvester(-1);
-            } else if (gamepad1.left_trigger >= .1) {
-                    robot.setHarvester(1);
-            } else {
-                robot.setHarvester(0);
+            //Gamepad 1 will control the movement and harvester.
+            robot.setMotors((float)(gamepad1.left_stick_x), (float)(gamepad1.left_stick_y), (float)(gamepad1.right_stick_x));
+            if(gamepad1.left_trigger > 0.1){
+                robot.harvester.setPower(-1);
+            } else if (gamepad1.left_bumper){
+                robot.harvester.setPower(1);
+            }else{
+                robot.harvester.setPower(0);
             }
+            //Gamepad 2 will control shooter mechanisms, like flywheel, ball lift and aiming lid servo
+            if(gamepad2.a){
+                robot.startFlyWheel(1);
+            }
+            else if(gamepad2.left_bumper){
+                robot.startFlyWheel(-1);
+
+            }
+            else{
+                robot.startFlyWheel(0);
+            }
+
+
+            if(gamepad2.left_trigger > 0.1){
+                robot.ballFeeder.setPower(-1);
+            }
+            else{
+                robot.ballFeeder.setPower(0);
+            }
+
+            if(gamepad2.dpad_up){
+                hoodPos += .01;
+                hoodPos = Range.clip(hoodPos,0,1);
+                robot.hood.setPosition(hoodPos);
+            }
+            else if(gamepad2.dpad_down){
+                hoodPos -= .01;
+                hoodPos = Range.clip(hoodPos,0,1);
+                robot.hood.setPosition(hoodPos);
+            }
+
+
+            telemetry.addData("Voltage from Wall Sensor", robot.wallSensor.getVoltage());
+            telemetry.addData("Servo Position", hoodPos);
+            telemetry.update();
+
+
+
+
+
+
+
+
+            idle();
         }
     }
 }
