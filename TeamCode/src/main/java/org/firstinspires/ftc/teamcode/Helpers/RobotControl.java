@@ -5,9 +5,12 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 
 
 
@@ -17,8 +20,9 @@ import org.firstinspires.ftc.teamcode.TeleOpTest1;
 /**
  * Driving functions for a Mecanum drive train in autonomous.
  */
-public class RobotControl {
+public class RobotControl{
     private final HardwareMap hardwareMap;
+    private LinearOpMode linearOpMode = null;
     public DcMotor ne, se, sw, nw, harvester, flyWheelEast, flyWheelWest;
     public ColorSensor colorEast, colorWest;
     public CRServo ballFeeder;
@@ -26,15 +30,13 @@ public class RobotControl {
     public AnalogInput eLineSensor,wLineSensor, wallSensor;
     public ElapsedTime runtime;
     public GyroSensor gyro;
+    public ElapsedTime counter;
+    double eastCount;
+    double westCount;
     //wEopd;
 
-    /**
-     * Constructor
-     *
-     * @param hardwareMap from the OpMode. Used to access the hardware.
-     */
-    public RobotControl(HardwareMap hardwareMap) {
-        this.hardwareMap = hardwareMap;
+    public RobotControl(LinearOpMode linearOpMode) {
+        hardwareMap = linearOpMode.hardwareMap;
         this.ne = this.hardwareMap.dcMotor.get("ne");
         this.se = this.hardwareMap.dcMotor.get("se");
         this.sw = this.hardwareMap.dcMotor.get("sw");
@@ -52,11 +54,13 @@ public class RobotControl {
         this.eLineSensor = this.hardwareMap.analogInput.get("eLineSensor");
         this.wLineSensor = this.hardwareMap.analogInput.get("wLineSensor");
         this.runtime = new ElapsedTime();
+        this.counter = new ElapsedTime();
         gyro.calibrate();
+        this.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
         while (gyro.isCalibrating()) {
-            this.colorEast.enableLed(false);
-            buttonPressEast.setPosition(235 / 255);
         }
+
+        buttonPressEast.setPosition(235 / 255);
     }
 
 //    public void drive()
@@ -98,6 +102,8 @@ public class RobotControl {
         nw.setPower(Range.clip(-nw.getPower()*100,-1,1));
         sw.setPower(Range.clip(-sw.getPower()*100,-1,1));
         while (runtime.milliseconds() <= 150) {
+            if(!linearOpMode.opModeIsActive()) return;
+
             //Just to add some extra time
         }
         ne.setPower(0);
@@ -111,30 +117,22 @@ public class RobotControl {
         sw.setPower(0);
         nw.setPower(0);
     }
-    public void startFlyWheel(float pow){
-        flyWheelEast.setPower(-pow);
-        flyWheelWest.setPower(pow);
+    public void startFlyWheel(float speed){
+        double CPS;
+        CPS = (28*((speed*7)/6))/60;
+        if (counter.time() >= 50) {
+            flyWheelEast.setPower(-Math.pow(10,-10)*Math.pow((((flyWheelEast.getCurrentPosition()-eastCount)/(runtime.time()* 1000))-CPS),3));
+            flyWheelWest.setPower(-Math.pow(10,-10)*Math.pow((((flyWheelWest.getCurrentPosition()-westCount)/(runtime.time()* 1000))-CPS),3));
+            counter.reset();
+            eastCount = flyWheelEast.getCurrentPosition();
+            westCount = flyWheelWest.getCurrentPosition();
+        }
     }
-    public void beaconCheckBlue(){
-        runtime.reset();
-        while(runtime.milliseconds() < 1000){
-            drive(95, .75, 0.05);
-        }
-        stop();
-        while(wallSensor.getVoltage() > .7){
-            drive(-90, .75, 0);
-        }
-        /*if(colorEast.blue() >=2){
-            buttonPressEast.setPosition(235/255);
-        }
-        else{
-            buttonPressEast.setPosition(155/255);
-        }*/
 
-    }
     public void beaconCheckBlue2(){
         runtime.reset();
         while(runtime.milliseconds() < 2000){
+            if(!linearOpMode.opModeIsActive()) return;
             drive(100, .75, 0.15);
         }
         stop();
@@ -151,28 +149,25 @@ public class RobotControl {
     }
     public void lineCheck(){
 
-        while(eLineSensor.getVoltage() < 1.5 || wLineSensor.getVoltage()  < 1.5){
+        while(eLineSensor.getVoltage() < 1.75 || wLineSensor.getVoltage()  < 1.75){
+            if(!linearOpMode.opModeIsActive()) return;
             if(eLineSensor.getVoltage() < 1.5){
                 ne.setPower(-.1);
                 se.setPower(-.1);
             }
             else{
-                ne.setPower(0);
-                se.setPower(0);
+                ne.setPower(.1);
+                se.setPower(.1);
             }
             if(wLineSensor.getVoltage() < 1.5){
                 nw.setPower(.1);
                 sw.setPower(.1);
             }
             else {
-                nw.setPower(0);
-                sw.setPower(0);
+                nw.setPower(-.1);
+                sw.setPower(-.1);
             }
-            //this.drive(.75,0,0);
         }
-        /*while(this.wallSensor.getVoltage() > .15){
-            drive(.5, -90, 0);
-        }*/
         stop();
 
 

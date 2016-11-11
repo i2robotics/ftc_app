@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 //import org.firstinspires.ftc.teamcode.Helpers.MechNav;
 
@@ -57,14 +58,26 @@ public class AutoTest1 extends LinearOpMode {
 
     double speed;
     RobotControl robot;
+    int encoder;
 
     /* Declare OpMode members. */
 
     @Override
-    public void runOpMode() throws InterruptedException {
-        robot = new RobotControl(hardwareMap);
+    public void runOpMode() {
+        robot = new RobotControl(this);
         // Wait for the game to start (driver presses PLAY)
+
+        if (robot.gyro.getHeading() != 0) {
+            robot.gyro.calibrate();
+            while (robot.gyro.isCalibrating()) {
+
+                telemetry.addData("gyro", robot.gyro.getHeading());
+                telemetry.update();
+
+            }
+        }
         waitForStart();
+        robot.colorEast.enableLed(true);
         robot.runtime.reset();
         speed = 0.5;
         // run until the end of the match (driver presses STOP
@@ -73,65 +86,160 @@ public class AutoTest1 extends LinearOpMode {
         if (robot.gyro.getHeading() != 0) {
             robot.gyro.calibrate();
             while (robot.gyro.isCalibrating()) {
+                if(!opModeIsActive()) break;
                 telemetry.addData("gyro", robot.gyro.getHeading());
                 telemetry.update();
+                telemetry.addData("enc", robot.ne.getCurrentPosition());
             }
         }
+            encoder = robot.ne.getCurrentPosition();
+            /*while(Math.abs(encoder)+900> Math.abs(robot.ne.getCurrentPosition())){
+                robot.drive(90, .75, robot.gyroRot());
+                telemetry.addData("enc", robot.ne.getCurrentPosition());
+                telemetry.update();
 
-            while(robot.eLineSensor.getVoltage() < 1.5 && robot.wallSensor.getVoltage() < .4) {
+            }*/
+        robot.runtime.reset();
+        while(robot.runtime.milliseconds() < 1000){
+            if(!opModeIsActive()) return;
+            telemetry.addData("EOPD", robot.wallSensor.getVoltage());
+            telemetry.addData("Both Floor Sensors", "East: " + robot.eLineSensor.getVoltage() + ", West: " + robot.wLineSensor.getVoltage());
+            telemetry.addData("color", robot.colorEast.alpha());
 
+            telemetry.update();
+            //robot.drive(72.5, .75, robot.gyroRot());
+        }
+
+        robot.stop();
+
+            while(robot.eLineSensor.getVoltage() < 1.75 && robot.wallSensor.getVoltage() < .39) {
+                if(!opModeIsActive()) return;
+                robot.drive(75, .65, robot.gyroRot());
                 // Drive it at a 45 degree angle from the starting position
+                System.out.println(robot.wallSensor.getVoltage());
                 telemetry.addData("Status", "Run Time: " + robot.runtime.toString());
                 telemetry.addData("Wall Sensor Status", "Voltage " + robot.wallSensor.getVoltage());
-                telemetry.addData("gyro",robot.gyro.getHeading());
+                telemetry.addData("Floor Sensor", robot.eLineSensor.getVoltage());
+                telemetry.addData("gyro", robot.gyro.getHeading());
                 telemetry.update();
                 //robot.setMotors(1,(float) -.4,0);
-                robot.drive(77, .75, robot.gyroRot());
+
             }
-            robot.brake();
-            robot.lineCheck();
+            brake();
+            lineCheck();
             robot.runtime.reset();
             while(robot.runtime.milliseconds() < 100){
             }
-            robot.beaconCheckBlue();
+            beaconCheckBlue();
             robot.stop();
-        int encoder1 = robot.se.getCurrentPosition();
-        while(Math.abs(encoder1)+1000 > Math.abs(robot.se.getCurrentPosition())){
+
+        encoder = robot.se.getCurrentPosition();
+        while(Math.abs(encoder)+1000 > Math.abs(robot.se.getCurrentPosition())){
+            if(!opModeIsActive()) break;
             robot.drive(0,.5,robot.gyroRot());
         }
-        robot.lineCheck();
+        lineCheck();
         robot.runtime.reset();
         while(robot.runtime.milliseconds() < 100){
         }
-        robot.beaconCheckBlue2();
+        beaconCheckBlue();
         robot.stop();
+        /*encoder = robot.ne.getCurrentPosition();
+        while(Math.abs(encoder)+500 > Math.abs(robot.ne.getCurrentPosition())) {
+            if(!opModeIsActive()) break;
+            robot.drive(-120, 1, robot.gyroRot());
+            telemetry.addData("gyro", robot.gyro.getHeading());
+            telemetry.update();
+            telemetry.addData("enc", robot.ne.getCurrentPosition());
+        }*/
+        robot.stop();
+
+        }
+
+
+
+
+    public void brake(){
         robot.runtime.reset();
-        while(robot.runtime.milliseconds() < 7000) {
-            robot.drive(-120, 1, 0);
+        robot.ne.setPower(Range.clip(-robot.ne.getPower()*100,-1,1));
+        robot.se.setPower(Range.clip(-robot.se.getPower()*100,-1,1));
+        robot.nw.setPower(Range.clip(-robot.nw.getPower()*100,-1,1));
+        robot.sw.setPower(Range.clip(-robot.sw.getPower()*100,-1,1));
+        while (robot.runtime.milliseconds() <= 150) {
+            if(!opModeIsActive()) return;
+
+            //Just to add some extra time
         }
+        robot.ne.setPower(0);
+        robot.se.setPower(0);
+        robot.sw.setPower(0);
+        robot.nw.setPower(0);
+    }
+    public void lineCheck(){
+        while(robot.eLineSensor.getVoltage() > 1.5 || robot.wLineSensor.getVoltage() > 1.5){
+            robot.drive(0, .65, 0);
         }
-
-            // Possibly add safeguard, so it wont hit the wall.
-
-
+        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5){
+            if(!opModeIsActive()) return;
 
 
-
-/*
-            if(robot.eEopd.getVoltage() > 1.5 || robot.wEopd.getVoltage() > 1.5){
-                //Align the robot here with he line
+            if(robot.eLineSensor.getVoltage() < 1.5){
+                robot.ne.setPower(-.1);
+                robot.se.setPower(-.1);
             }
-            while(eEopdVal > 1.5 && wEopdVal > 1.5){
+            else{
+                robot.ne.setPower(.1);
+                robot.se.setPower(.1);
+            }
+            if(robot.wLineSensor.getVoltage() < 1.5){
+                robot.nw.setPower(.1);
+                robot.sw.setPower(.1);
+            }
+            else {
+                robot.nw.setPower(-.1);
+                robot.sw.setPower(-.1);
+            }
+        }
+        robot.stop();
+    }
+    public void beaconCheckBlue2(){
+        robot.runtime.reset();
+        while(robot.runtime.milliseconds() < 2000){
+            if(!opModeIsActive()) return;
+            //robot.drive(100, .75, 0.15);
+        }
 
-                
-            }*/
+        while(robot.wallSensor.getVoltage() > .2){
+            //robot.drive(-90, .5, 0);
+        }
+        if(robot.colorEast.blue() >=2){
+            robot.buttonPressEast.setPosition(235/255);
+        }
+        else{
+            robot.buttonPressEast.setPosition(155/255);
+        }
+        robot.stop();
 
+    }
+    public void beaconCheckBlue(){
+        robot.runtime.reset();
+        while(robot.runtime.milliseconds() < 1000){
+            if(!opModeIsActive()) return;
+            robot.drive(90, .65, 0);
+        }
+        robot.stop();
+        while(robot.runtime.milliseconds() > 2000){
+            if(opModeIsActive()) return;
+            robot.drive(-90, .75, 0);
+        }
+        if(robot.colorEast.blue() >=2){
+            robot.buttonPressEast.setPosition(235/255);
+        }
+        else{
+            robot.buttonPressEast.setPosition(155/255);
+        }
 
-
-
-
-
-             // Always call idle() at the bottom of your while(opModeIsActive()) loop
+    }
         }
 
 

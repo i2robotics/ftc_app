@@ -44,7 +44,7 @@ import org.firstinspires.ftc.teamcode.Helpers.RobotControl;
 public class TeleOpTest1 extends LinearOpMode {
     @Override
     public void runOpMode() {
-        RobotControl robot =new RobotControl(hardwareMap);
+        RobotControl robot = new RobotControl(this);
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         double hoodPos = 0;
@@ -75,20 +75,28 @@ public class TeleOpTest1 extends LinearOpMode {
             if(gamepad2.left_trigger > 0.1){
                 robot.ballFeeder.setPower(-1);
             }
+            else if(gamepad2.right_trigger > 0.1){
+                robot.ballFeeder.setPower(1);
+            }
             else{
                 robot.ballFeeder.setPower(0);
             }
 
+
+
+
             if(gamepad2.dpad_up){
-                hoodPos += .01;
+                hoodPos += .001;
                 hoodPos = Range.clip(hoodPos,0,1);
                 robot.hood.setPosition(hoodPos);
             }
             else if(gamepad2.dpad_down){
-                hoodPos -= .01;
+                hoodPos -= .001;
                 hoodPos = Range.clip(hoodPos,0,1);
                 robot.hood.setPosition(hoodPos);
             }
+
+
 
 
             telemetry.addData("Voltage from Wall Sensor", robot.wallSensor.getVoltage());
