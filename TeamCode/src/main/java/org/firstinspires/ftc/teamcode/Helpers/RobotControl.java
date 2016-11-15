@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.Helpers;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -24,7 +25,7 @@ public class RobotControl{
     private final HardwareMap hardwareMap;
     private LinearOpMode linearOpMode = null;
     public DcMotor ne, se, sw, nw, harvester, flyWheelEast, flyWheelWest;
-    public ColorSensor colorEast, colorWest;
+    public ModernRoboticsI2cColorSensor colorEast, colorWest;
     public CRServo ballFeeder;
     public Servo hood, buttonPressEast;
     public AnalogInput eLineSensor,wLineSensor, wallSensor;
@@ -47,7 +48,7 @@ public class RobotControl{
         this.hood = this.hardwareMap.servo.get("hood");
         this.buttonPressEast = this.hardwareMap.servo.get("buttonPressEast");
         this.ballFeeder = this.hardwareMap.crservo.get("ballFeeder");
-        this.colorEast = this.hardwareMap.colorSensor.get("colorEast");
+        this.colorEast = (ModernRoboticsI2cColorSensor)this.hardwareMap.colorSensor.get("colorEast");
         this.gyro = this.hardwareMap.gyroSensor.get("gyro");
 //        this.colorWest = this.hardwareMap.colorSensor.get("colorWest");
         this.wallSensor = this.hardwareMap.analogInput.get("wallSensor");
@@ -57,10 +58,10 @@ public class RobotControl{
         this.counter = new ElapsedTime();
         gyro.calibrate();
         this.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
-        while (gyro.isCalibrating()) {
-        }
+        colorEast.enableLed(true);
 
-        buttonPressEast.setPosition(235 / 255);
+
+        //buttonPressEast.setPosition(235 / 255);
     }
 
 //    public void drive()

@@ -70,6 +70,7 @@ public class AutoTest1 extends LinearOpMode {
         if (robot.gyro.getHeading() != 0) {
             robot.gyro.calibrate();
             while (robot.gyro.isCalibrating()) {
+                    if (!opModeIsActive()) return;
 
                 telemetry.addData("gyro", robot.gyro.getHeading());
                 telemetry.update();
@@ -114,7 +115,7 @@ public class AutoTest1 extends LinearOpMode {
 
             while(robot.eLineSensor.getVoltage() < 1.75 && robot.wallSensor.getVoltage() < .39) {
                 if(!opModeIsActive()) return;
-                robot.drive(75, .65, robot.gyroRot());
+                robot.drive(35, 1, robot.gyroRot());
                 // Drive it at a 45 degree angle from the starting position
                 System.out.println(robot.wallSensor.getVoltage());
                 telemetry.addData("Status", "Run Time: " + robot.runtime.toString());
@@ -136,7 +137,7 @@ public class AutoTest1 extends LinearOpMode {
         encoder = robot.se.getCurrentPosition();
         while(Math.abs(encoder)+1000 > Math.abs(robot.se.getCurrentPosition())){
             if(!opModeIsActive()) break;
-            robot.drive(0,.5,robot.gyroRot());
+            robot.drive(180,.5,robot.gyroRot());
         }
         lineCheck();
         robot.runtime.reset();
