@@ -129,16 +129,22 @@ public class RobotControl{
             ballFeeder.setPower(0);
         }
     }
-    public void startFlyWheel(float speed){
-        double CPS;
-        CPS = (28*((speed*6)/7))/60;
-        if (counter.milliseconds() >= 50) {
-            flyWheelEast.setPower(-Math.pow(10,-10)*Math.pow((((flyWheelEast.getCurrentPosition()-eastCount)/(runtime.milliseconds()* 1000))-CPS),3));
-            flyWheelWest.setPower(Math.pow(10,-10)*Math.pow((((flyWheelWest.getCurrentPosition()-westCount)/(runtime.milliseconds()* 1000))-CPS),3));
-            counter.reset();
+   public double startFlyWheel(double speed){
+        int CPS;
+        CPS = (int) (28*((speed*6)/7))/60;
+        /*if (counter.milliseconds() >= 50) {
+           flyWheelEast.setPower(-Range.clip((float) Math.pow(10,-10)*Math.pow(((1000*(flyWheelEast.getCurrentPosition()-eastCount)/(counter.milliseconds()))-CPS),3), -1, 1));
+           flyWheelWest.setPower(Range.clip((float) Math.pow(10,-10)*Math.pow((((1000*Math.abs(flyWheelWest.getCurrentPosition()-westCount)/(counter.milliseconds()))-CPS)),3), -1, 1));
+           counter.reset();
             eastCount = flyWheelEast.getCurrentPosition();
             westCount = flyWheelWest.getCurrentPosition();
         }
+        return (2500*((flyWheelWest.getCurrentPosition()-westCount)/(counter.milliseconds())));*/
+        flyWheelWest.setMaxSpeed(CPS);
+        flyWheelEast.setMaxSpeed((int) (CPS*0.5));
+        flyWheelWest.setPower(-1);
+        flyWheelEast.setPower(1);
+        return 1;
     }
 
     public void beaconCheckBlue2(){
