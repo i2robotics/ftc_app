@@ -45,13 +45,22 @@ public class TeleOpTest1 extends LinearOpMode {
     @Override
     public void runOpMode() {
         RobotControl robot = new RobotControl(this);
+        robot.hood.setPosition(0.4);
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         double hoodPos = 0;
-
+        double speed = 1;
+        double ShooterRPM = 6600;
         while (opModeIsActive()) {
+            if (gamepad1.b) {
+                speed = .5;
+            } else if (gamepad1.x) {
+                speed = 1;
+            } else if (gamepad1.y) {
+                speed = .375;
+            }
             //Gamepad 1 will control the movement and harvester.
-            robot.setMotors((float)(gamepad1.left_stick_x), (float)(gamepad1.left_stick_y), (float)(gamepad1.right_stick_x));
+            robot.setMotors((float) (gamepad1.left_stick_x*speed), (float) (gamepad1.left_stick_y*speed), (float) (gamepad1.right_stick_x*speed));
             if(gamepad1.left_trigger > 0.1){
                 robot.harvester.setPower(-1);
             } else if (gamepad1.left_bumper){
@@ -60,46 +69,51 @@ public class TeleOpTest1 extends LinearOpMode {
                 robot.harvester.setPower(0);
             }
             //Gamepad 2 will control shooter mechanisms, like flywheel, ball lift and aiming lid servo
-            if(gamepad2.a){
-                robot.startFlyWheel(6000);
-            }
-            else if(gamepad2.left_bumper){
-                robot.startFlyWheel(-6000);
 
+             if (gamepad1.right_trigger >= 0.1){
+                 robot.startFlyWheel(-250);
+             } else if (gamepad2.left_bumper) {
+                 robot.startFlyWheel(-250);
+             } else {
+                 robot.startFlyWheel(ShooterRPM);
+             }
+            if(gamepad2.left_trigger > 0.1 || (robot.SaddleSwitch.getVoltage() < .1 && !(gamepad2.right_trigger > 0.1))){
+                robot.ballFeeder.setPower(-1);
+            }
+            else if(gamepad2.right_trigger > 0.1){
+                robot.ballFeeder.setPower(1);
             }
             else{
-                robot.startFlyWheel(0);
+                robot.ballFeeder.setPower(0);
             }
-
-            robot.primeShooter(gamepad2.left_trigger > 0.1, gamepad2.right_trigger > 0.1);
-
-
-
             if(gamepad2.dpad_up){
-                hoodPos += .001;
-                hoodPos = Range.clip(hoodPos,0,1);
+                hoodPos += .005;
+                hoodPos = Range.clip(hoodPos,.4,1);
                 robot.hood.setPosition(hoodPos);
             }
             else if(gamepad2.dpad_down){
-                hoodPos -= .001;
-                hoodPos = Range.clip(hoodPos,0,1);
+                hoodPos -= .005;
+                hoodPos = Range.clip(hoodPos,.4,1);
                 robot.hood.setPosition(hoodPos);
             }
-
-
-
-
-            telemetry.addData("Voltage from Wall Sensor", robot.wallSensor.getVoltage());
+            if (gamepad2.dpad_left) {
+                ShooterRPM -= 5;
+                ShooterRPM = Range.clip(ShooterRPM,4000,10000);
+            }  if (gamepad2.dpad_right) {
+                ShooterRPM += 5;
+                ShooterRPM = Range.clip(ShooterRPM,4000,10000);
+            }
+            if (gamepad1.right_trigger >= 0.1) {
+                robot.capBall.setPower(1);
+            } else if (gamepad1.right_bumper) {
+                robot.capBall.setPower(-.25);
+            } else {
+                robot.capBall.setPower(0);
+            }
+            telemetry.addData("Shooter RPM", ShooterRPM);
+            telemetry.addData("Wheel Speed", speed);
             telemetry.addData("Servo Position", hoodPos);
             telemetry.update();
-
-
-
-
-
-
-
-
             idle();
         }
     }
