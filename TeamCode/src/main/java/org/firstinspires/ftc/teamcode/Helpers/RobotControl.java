@@ -28,7 +28,7 @@ public class RobotControl{
     public ModernRoboticsI2cColorSensor colorEast, colorWest;
     public CRServo ballFeeder;
     public Servo hood, buttonPressEast;
-    public AnalogInput eLineSensor,wLineSensor, wallSensor;
+    public AnalogInput eLineSensor,wLineSensor, wallSensor, feedSwitch;
     public ElapsedTime runtime;
     public GyroSensor gyro;
     public ElapsedTime counter;
@@ -51,12 +51,14 @@ public class RobotControl{
         this.colorEast = (ModernRoboticsI2cColorSensor)this.hardwareMap.colorSensor.get("colorEast");
         this.gyro = this.hardwareMap.gyroSensor.get("gyro");
 //        this.colorWest = this.hardwareMap.colorSensor.get("colorWest");
-        this.wallSensor = this.hardwareMap.analogInput.get("wallSensor");
+        this.wallSensor = this.hardwareMap.analogInput.get("ultra");
+        //this.ultra = this.hardwareMap.analogInput.get("utra")
         this.eLineSensor = this.hardwareMap.analogInput.get("eLineSensor");
         this.wLineSensor = this.hardwareMap.analogInput.get("wLineSensor");
+        this.feedSwitch = this.hardwareMap.analogInput.get("ss");
         this.runtime = new ElapsedTime();
         this.counter = new ElapsedTime();
-        gyro.calibrate();
+        //gyro.calibrate();
         this.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
         colorEast.enableLed(true);
 
@@ -118,12 +120,21 @@ public class RobotControl{
         sw.setPower(0);
         nw.setPower(0);
     }
+    public void primeShooter (boolean pop, boolean reset) {
+        if (pop || (!(feedSwitch.getVoltage() >= .1) && !reset)) {
+            ballFeeder.setPower(-1);
+        } else if (reset) {
+            ballFeeder.setPower(1);
+        } else {
+            ballFeeder.setPower(0);
+        }
+    }
     public void startFlyWheel(float speed){
         double CPS;
-        CPS = (28*((speed*7)/6))/60;
-        if (counter.time() >= 50) {
-            flyWheelEast.setPower(-Math.pow(10,-10)*Math.pow((((flyWheelEast.getCurrentPosition()-eastCount)/(runtime.time()* 1000))-CPS),3));
-            flyWheelWest.setPower(-Math.pow(10,-10)*Math.pow((((flyWheelWest.getCurrentPosition()-westCount)/(runtime.time()* 1000))-CPS),3));
+        CPS = (28*((speed*6)/7))/60;
+        if (counter.milliseconds() >= 50) {
+            flyWheelEast.setPower(-Math.pow(10,-10)*Math.pow((((flyWheelEast.getCurrentPosition()-eastCount)/(runtime.milliseconds()* 1000))-CPS),3));
+            flyWheelWest.setPower(Math.pow(10,-10)*Math.pow((((flyWheelWest.getCurrentPosition()-westCount)/(runtime.milliseconds()* 1000))-CPS),3));
             counter.reset();
             eastCount = flyWheelEast.getCurrentPosition();
             westCount = flyWheelWest.getCurrentPosition();

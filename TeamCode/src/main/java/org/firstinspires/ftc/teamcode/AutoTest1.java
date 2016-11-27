@@ -54,81 +54,69 @@ import java.io.OptionalDataException;
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoTest1", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 
 public class AutoTest1 extends LinearOpMode {
-    //private final HardwareMap hardwareMap;
-
-    double speed;
     RobotControl robot;
     int encoder;
-
-    /* Declare OpMode members. */
 
     @Override
     public void runOpMode() {
         robot = new RobotControl(this);
-        // Wait for the game to start (driver presses PLAY)
-
-        if (robot.gyro.getHeading() != 0) {
             robot.gyro.calibrate();
             while (robot.gyro.isCalibrating()) {
-                    if (!opModeIsActive()) return;
-
-                telemetry.addData("gyro", robot.gyro.getHeading());
+                telemetry.addData("Gyro heading", robot.gyro.getHeading());
                 telemetry.update();
 
             }
-        }
+        robot.buttonPressEast.setPosition(.9);
+
+
         waitForStart();
-        robot.colorEast.enableLed(true);
-        robot.runtime.reset();
-        speed = 0.5;
-        // run until the end of the match (driver presses STOP
 
-           // double wEopdVal = robot.wEopd.getVoltage();
         if (robot.gyro.getHeading() != 0) {
             robot.gyro.calibrate();
             while (robot.gyro.isCalibrating()) {
-                if(!opModeIsActive()) break;
-                telemetry.addData("gyro", robot.gyro.getHeading());
+                if(!opModeIsActive()) return;
+                telemetry.addData("Gyro heading (POST INIT)", robot.gyro.getHeading());
                 telemetry.update();
-                telemetry.addData("enc", robot.ne.getCurrentPosition());
             }
         }
-            encoder = robot.ne.getCurrentPosition();
-            /*while(Math.abs(encoder)+900> Math.abs(robot.ne.getCurrentPosition())){
-                robot.drive(90, .75, robot.gyroRot());
-                telemetry.addData("enc", robot.ne.getCurrentPosition());
-                telemetry.update();
 
-            }*/
-        robot.runtime.reset();
-        while(robot.runtime.milliseconds() < 1000){
-            if(!opModeIsActive()) return;
-            telemetry.addData("EOPD", robot.wallSensor.getVoltage());
-            telemetry.addData("Both Floor Sensors", "East: " + robot.eLineSensor.getVoltage() + ", West: " + robot.wLineSensor.getVoltage());
-            telemetry.addData("color", robot.colorEast.alpha());
-
-            telemetry.update();
-            //robot.drive(72.5, .75, robot.gyroRot());
-        }
-
-        robot.stop();
-
-            while(robot.eLineSensor.getVoltage() < 1.75 && robot.wallSensor.getVoltage() < .39) {
+            while(robot.eLineSensor.getVoltage() < 1.75 && robot.wallSensor.getVoltage() > .1) {
                 if(!opModeIsActive()) return;
-                robot.drive(35, 1, robot.gyroRot());
+                robot.drive(41.8, 1, robot.gyroRot());
                 // Drive it at a 45 degree angle from the starting position
                 System.out.println(robot.wallSensor.getVoltage());
-                telemetry.addData("Status", "Run Time: " + robot.runtime.toString());
-                telemetry.addData("Wall Sensor Status", "Voltage " + robot.wallSensor.getVoltage());
-                telemetry.addData("Floor Sensor", robot.eLineSensor.getVoltage());
-                telemetry.addData("gyro", robot.gyro.getHeading());
+
+                telemetry.addData("Gyro Heading", robot.gyro.getHeading());
                 telemetry.update();
                 //robot.setMotors(1,(float) -.4,0);
 
             }
             brake();
-            lineCheck();
-            robot.runtime.reset();
+            lineCheck(1);
+            beaconCheckBlue();
+        encoder =  robot.se.getCurrentPosition();
+        while(Math.abs(encoder)+500 > Math.abs(robot.se.getCurrentPosition())) {
+            if(!opModeIsActive()) return;
+            robot.drive(180, 1, robot.gyroRot());
+        }
+        /*
+        lineCheck(-1);
+        beaconCheckBlue();
+        robot.runtime.reset();
+        while(robot.runtime.milliseconds() < 2000){
+            if (!opModeIsActive()) return;
+            robot.drive(-90, 1, robot.gyroRot());
+        }
+        robot.runtime.reset();
+        while(robot.runtime.milliseconds() < 1000){
+            if (!opModeIsActive()) return;
+
+            //robot.drive(-90, 1, robot.gyroRot());
+            robot.ne.setPower(.75);
+            robot.se.setPower(.75);
+        }
+*/
+           /* robot.runtime.reset();
             while(robot.runtime.milliseconds() < 100){
             }
             beaconCheckBlue();
@@ -145,7 +133,7 @@ public class AutoTest1 extends LinearOpMode {
         }
         beaconCheckBlue();
         robot.stop();
-        /*encoder = robot.ne.getCurrentPosition();
+        *//*encoder = robot.ne.getCurrentPosition();
         while(Math.abs(encoder)+500 > Math.abs(robot.ne.getCurrentPosition())) {
             if(!opModeIsActive()) break;
             robot.drive(-120, 1, robot.gyroRot());
@@ -176,31 +164,33 @@ public class AutoTest1 extends LinearOpMode {
         robot.sw.setPower(0);
         robot.nw.setPower(0);
     }
-    public void lineCheck(){
-        while(robot.eLineSensor.getVoltage() > 1.5 || robot.wLineSensor.getVoltage() > 1.5){
-            robot.drive(0, .65, 0);
-        }
-        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5){
-            if(!opModeIsActive()) return;
+    public void lineCheck(int direction){
+        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5) {
+            if (!opModeIsActive()) return;
 
 
-            if(robot.eLineSensor.getVoltage() < 1.5){
-                robot.ne.setPower(-.1);
-                robot.se.setPower(-.1);
-            }
-            else{
-                robot.ne.setPower(.1);
-                robot.se.setPower(.1);
-            }
-            if(robot.wLineSensor.getVoltage() < 1.5){
-                robot.nw.setPower(.1);
-                robot.sw.setPower(.1);
-            }
-            else {
-                robot.nw.setPower(-.1);
-                robot.sw.setPower(-.1);
-            }
+                if (robot.eLineSensor.getVoltage() < 1.5) {
+                    robot.nw.setPower(.12*direction);
+                    robot.sw.setPower(.12*direction);
+
+                } else {
+                    robot.nw.setPower(-.12*direction);
+                    robot.sw.setPower(-.12*direction);
+
+                }
+                if (robot.wLineSensor.getVoltage() < 1.5) {
+                    robot.ne.setPower(-.12*direction);
+                    robot.se.setPower(-.12*direction);
+                } else {
+                    robot.ne.setPower(.12*direction);
+                    robot.se.setPower(.12*direction);
+
+                }
+
+
         }
+        robot.runtime.reset();
+
         robot.stop();
     }
     public void beaconCheckBlue2(){
@@ -213,34 +203,46 @@ public class AutoTest1 extends LinearOpMode {
         while(robot.wallSensor.getVoltage() > .2){
             //robot.drive(-90, .5, 0);
         }
-        if(robot.colorEast.blue() >=2){
+        if(robot.colorEast.blue() >=2 && robot.colorEast.red() <= 1){
             robot.buttonPressEast.setPosition(235/255);
         }
-        else{
+        else if(robot.colorEast.blue() <=1 && robot.colorEast.red() >= 2){
             robot.buttonPressEast.setPosition(155/255);
+        }
+        else{
+            robot.drive(90, .25, 0);
         }
         robot.stop();
 
     }
     public void beaconCheckBlue(){
         robot.runtime.reset();
-        while(robot.runtime.milliseconds() < 1000){
-            if(!opModeIsActive()) return;
-            robot.drive(90, .65, 0);
-        }
-        robot.stop();
-        while(robot.runtime.milliseconds() > 2000){
-            if(opModeIsActive()) return;
-            robot.drive(-90, .75, 0);
-        }
-        if(robot.colorEast.blue() >=2){
-            robot.buttonPressEast.setPosition(235/255);
-        }
-        else{
-            robot.buttonPressEast.setPosition(155/255);
-        }
+        while (robot.runtime.milliseconds() < 1500) {
+            if (!opModeIsActive()) return;
+            telemetry.addData("Sensor", robot.colorEast.blue());
+            telemetry.update();
 
-    }
+
+            if (robot.colorEast.blue() >= 2) {
+                if (!opModeIsActive()) return;
+                robot.buttonPressEast.setPosition(.9);
+                telemetry.addData("Sensor", robot.colorEast.blue());
+                telemetry.update();
+            }
+            else if(robot.colorEast.blue() <= 1){
+                robot.buttonPressEast.setPosition(.627);
+            }
+            //while(robot.runtime.milliseconds() - 2000 < 200){}
+            robot.drive(90, .75, 0);
+
+
+
+        }
+        robot.runtime.reset();/*
+        while(robot.runtime.milliseconds() < 200){
+            robot.drive(270, .8, 0);
+        }*/
+        }
         }
 
 
