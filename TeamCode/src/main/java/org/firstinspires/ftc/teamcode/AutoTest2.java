@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,15 +17,17 @@ public class AutoTest2 extends LinearOpMode {
     //RobotControl robot;
     public ElapsedTime runtime;
     RobotControl robot;
+    ColorSensor colorEast;
 
     public void runOpMode() throws InterruptedException {
-
+        this.colorEast = this.hardwareMap.colorSensor.get("colorEast");
         robot = new RobotControl(this);
         robot.buttonPressEast.setPosition(.9);
-        /*robot.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
-        robot.colorEast.enableLed(true);*/
+        //robot.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
+        colorEast.enableLed(true);
+
         robot.gyro.calibrate();
-        telemetry.addData("Sensor", robot.colorEast.blue());
+        telemetry.addData("Sensor", colorEast.blue());
         telemetry.update();
         waitForStart();
 //        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5){
@@ -71,81 +74,22 @@ public class AutoTest2 extends LinearOpMode {
 //
 //
 //            }
-        double encoder=robot.se.getCurrentPosition();
-        while(encoder+2000 < robot.se.getCurrentPosition()){
-            robot.drive(180, 1, 0);
-      }
-        lineCheck(-1);
-        beaconCheckBlue();
         robot.runtime.reset();
-
-
-
-
-
-
+        while(robot.runtime.milliseconds() < 20000){
+            if(!opModeIsActive()) return;
+            telemetry.addData("Blue Color", colorEast.blue());
+            telemetry.addData("All Color", colorEast.argb());
 
         }
-    public void lineCheck(int direction){
-        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5) {
-            if (!opModeIsActive()) return;
-
-
-            if (robot.eLineSensor.getVoltage() < 1.5) {
-                robot.nw.setPower(.12*direction);
-                robot.sw.setPower(.12*direction);
-
-            } else {
-                robot.nw.setPower(-.12*direction);
-                robot.sw.setPower(-.12*direction);
-
-            }
-            if (robot.wLineSensor.getVoltage() < 1.5) {
-                robot.ne.setPower(-.12*direction);
-                robot.se.setPower(-.12*direction);
-            } else {
-                robot.ne.setPower(.12*direction);
-                robot.se.setPower(.12*direction);
-
-            }
-
-
         }
-        robot.runtime.reset();
-
-        robot.stop();
-    }
-    public void beaconCheckBlue(){
-        robot.runtime.reset();
-        while (robot.runtime.milliseconds() < 1500) {
-            if (!opModeIsActive()) return;
-            telemetry.addData("Sensor", robot.colorEast.blue());
-            telemetry.update();
-
-
-            if (robot.colorEast.blue() >= 2) {
-                if (!opModeIsActive()) return;
-                robot.buttonPressEast.setPosition(.9);
-                telemetry.addData("Sensor", robot.colorEast.blue());
-                telemetry.update();
-            }
-            else if(robot.colorEast.blue() <= 1){
-                robot.buttonPressEast.setPosition(.627);
-            }
-            //while(robot.runtime.milliseconds() - 2000 < 200){}
-            robot.drive(90, .75, 0);
 
 
 
-        }
-        robot.runtime.reset();
-        while(robot.runtime.milliseconds() < 200){
-            robot.drive(-90, .8, 0);
-        }
+
     }
 
 
 
-    }
+
 
 

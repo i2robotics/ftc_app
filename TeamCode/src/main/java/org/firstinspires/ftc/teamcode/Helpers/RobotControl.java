@@ -24,14 +24,15 @@ import org.firstinspires.ftc.teamcode.TeleOpTest1;
 public class RobotControl{
     private final HardwareMap hardwareMap;
     private LinearOpMode linearOpMode = null;
-    public DcMotor ne, se, sw, nw, harvester, flyWheelEast, flyWheelWest;
-    public ModernRoboticsI2cColorSensor colorEast, colorWest;
+    public DcMotor ne, se, sw, nw, harvester, flyWheelEast, flyWheelWest, capBall;
+    public ColorSensor colorEast, colorWest;
     public CRServo ballFeeder;
-    public Servo hood, buttonPressEast;
-    public AnalogInput eLineSensor,wLineSensor, wallSensor, feedSwitch;
+    public Servo hood, buttonPressEast, liftStopEast, liftStopWest;
+    public AnalogInput eLineSensor,wLineSensor, wallSensor, feedSwitch, SaddleSwitch;
     public ElapsedTime runtime;
     public GyroSensor gyro;
     public ElapsedTime counter;
+
     double eastCount;
     double westCount;
     //wEopd;
@@ -48,19 +49,25 @@ public class RobotControl{
         this.hood = this.hardwareMap.servo.get("hood");
         this.buttonPressEast = this.hardwareMap.servo.get("buttonPressEast");
         this.ballFeeder = this.hardwareMap.crservo.get("ballFeeder");
-        this.colorEast = (ModernRoboticsI2cColorSensor)this.hardwareMap.colorSensor.get("colorEast");
+        this.colorEast = this.hardwareMap.colorSensor.get("colorEast");
         this.gyro = this.hardwareMap.gyroSensor.get("gyro");
 //        this.colorWest = this.hardwareMap.colorSensor.get("colorWest");
         this.wallSensor = this.hardwareMap.analogInput.get("ultra");
+        this.SaddleSwitch = this.hardwareMap.analogInput.get("ss");
+        this.capBall = this.hardwareMap.dcMotor.get("cb");
         //this.ultra = this.hardwareMap.analogInput.get("utra")
         this.eLineSensor = this.hardwareMap.analogInput.get("eLineSensor");
         this.wLineSensor = this.hardwareMap.analogInput.get("wLineSensor");
-        this.feedSwitch = this.hardwareMap.analogInput.get("ss");
+        //this.liftStopEast = this.hardwareMap.servo.get("liftStopEast");
+        //this.liftStopWest = this.hardwareMap.servo.get("liftStopWest");
+
         this.runtime = new ElapsedTime();
         this.counter = new ElapsedTime();
+        this.flyWheelWest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.flyWheelEast.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //gyro.calibrate();
-        this.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
-        colorEast.enableLed(true);
+        //this.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
+        //colorEast.enableLed(true);
 
 
         //buttonPressEast.setPosition(235 / 255);
@@ -98,7 +105,7 @@ public class RobotControl{
         nw.setPower(nwPower);
 
     }
-    public void brake(){
+ /*   public void brake(){
         runtime.reset();
         ne.setPower(Range.clip(-ne.getPower()*100,-1,1));
         se.setPower(Range.clip(-se.getPower()*100,-1,1));
@@ -113,21 +120,12 @@ public class RobotControl{
         se.setPower(0);
         sw.setPower(0);
         nw.setPower(0);
-    }
+    }*/
     public void stop(){
         ne.setPower(0);
         se.setPower(0);
         sw.setPower(0);
         nw.setPower(0);
-    }
-    public void primeShooter (boolean pop, boolean reset) {
-        if (pop || (!(feedSwitch.getVoltage() >= .1) && !reset)) {
-            ballFeeder.setPower(-1);
-        } else if (reset) {
-            ballFeeder.setPower(1);
-        } else {
-            ballFeeder.setPower(0);
-        }
     }
    public double startFlyWheel(double speed){
         int CPS;
@@ -140,11 +138,14 @@ public class RobotControl{
             westCount = flyWheelWest.getCurrentPosition();
         }
         return (2500*((flyWheelWest.getCurrentPosition()-westCount)/(counter.milliseconds())));*/
-        flyWheelWest.setMaxSpeed(CPS);
-        flyWheelEast.setMaxSpeed((int) (CPS*0.5));
+        flyWheelWest.setMaxSpeed((int) (CPS));
+        flyWheelEast.setMaxSpeed((int)(CPS * .5));
         flyWheelWest.setPower(-1);
         flyWheelEast.setPower(1);
         return 1;
+    }
+    public void stopFlyWheel(){
+        startFlyWheel(0);
     }
 
     public void beaconCheckBlue2(){

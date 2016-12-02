@@ -50,14 +50,14 @@ public class TeleOpTest1 extends LinearOpMode {
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         double hoodPos = 0;
         double speed = 1;
-        double ShooterRPM = 6600;
+        double ShooterRPM = 1000;
         while (opModeIsActive()) {
             if (gamepad1.b) {
-                speed = .5;
+                speed = 0.625;
             } else if (gamepad1.x) {
                 speed = 1;
             } else if (gamepad1.y) {
-                speed = .375;
+                speed = 0.5;
             }
             //Gamepad 1 will control the movement and harvester.
             robot.setMotors((float) (gamepad1.left_stick_x*speed), (float) (gamepad1.left_stick_y*speed), (float) (gamepad1.right_stick_x*speed));
@@ -98,18 +98,19 @@ public class TeleOpTest1 extends LinearOpMode {
             }
             if (gamepad2.dpad_left) {
                 ShooterRPM -= 5;
-                ShooterRPM = Range.clip(ShooterRPM,4000,10000);
+                ShooterRPM = Range.clip(ShooterRPM,0,10000);
             }  if (gamepad2.dpad_right) {
                 ShooterRPM += 5;
-                ShooterRPM = Range.clip(ShooterRPM,4000,10000);
+                ShooterRPM = Range.clip(ShooterRPM,0,10000);
             }
             if (gamepad1.right_trigger >= 0.1) {
                 robot.capBall.setPower(1);
             } else if (gamepad1.right_bumper) {
-                robot.capBall.setPower(-.25);
+                robot.capBall.setPower(-1);
             } else {
                 robot.capBall.setPower(0);
             }
+
             telemetry.addData("Shooter RPM", ShooterRPM);
             telemetry.addData("Wheel Speed", speed);
             telemetry.addData("Servo Position", hoodPos);
