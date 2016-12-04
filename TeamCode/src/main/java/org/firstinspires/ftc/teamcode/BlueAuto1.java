@@ -34,12 +34,13 @@ class BlueAuto1 extends LinearOpMode {
             telemetry.update();
 
         }
-        robot.buttonPressEast.setPosition(.9);
+        telemetry.addData("Ultra Sonic Sensor", robot.wallSensor.getVoltage());
+        robot.se.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         waitForStart();
         //System.out.println("Starting! Woo Hoo!");
         //Start up the flywheel and position the hood for the firing of the particles
-        robot.startFlyWheel(8715);
+        /*robot.startFlyWheel(8715);
         robot.hood.setPosition(.875);
 
         //Fire the ball
@@ -49,6 +50,8 @@ class BlueAuto1 extends LinearOpMode {
             telemetry.addData("Ultra Sonic Sensor", robot.wallSensor.getVoltage());
             telemetry.update();
         };
+        telemetry.clearAll();
+        telemetry.update();
         robot.runtime.reset();
         while(robot.runtime.milliseconds() < 1500){
             if(!opModeIsActive()) return;
@@ -84,34 +87,37 @@ class BlueAuto1 extends LinearOpMode {
             robot.ballFeeder.setPower(-1);
         }
         robot.ballFeeder.setPower(0);
-        robot.stopFlyWheel();
+        robot.stopFlyWheel();*/
 
 
 
         while(robot.wallSensor.getVoltage() > .097) {
             //System.out.println("looping");
             if(!opModeIsActive()) return;
-            robot.setMotors(1, -1, (float) robot.gyroRot());
+            robot.drive(45, 1, (float) robot.gyroRot());
             // Drive it at a 45 degree angle from the starting position
-            //System.out.println(robot.wallSensor.getVoltage());
+            System.out.println(robot.wallSensor.getVoltage());
             telemetry.addData("Gyro Heading", robot.gyro.getHeading());
             telemetry.addData("Ultra Sonic Sensor", robot.wallSensor.getVoltage());
+            telemetry.addData("Time", robot.runtime.milliseconds());
             telemetry.update();
-
         }
 
-        brake();
-        lineCheck(1);
-        brake();
+        robot.stop();
+        lineCheck(1, 1000);
+        brake(75);
+
+        robot.runtime.reset();
         beaconCheckBlue();
+
         int encoder = robot.se.getCurrentPosition();
-        while(Math.abs(encoder)+250 > Math.abs(robot.se.getCurrentPosition())){
+       /* while(Math.abs(encoder)+250 > Math.abs(robot.se.getCurrentPosition())){
             if(!opModeIsActive()) return;
             robot.drive(180, .75, robot.gyroRot());
-        }
-        robot.stop();
-        lineCheck(-1);
-        brake();
+        }*/
+        brake(150);
+        lineCheck(-1.5, 3000);
+        brake(75);
         beaconCheckBlue();
         robot.stop();
         encoder = robot.se.getCurrentPosition();
@@ -128,71 +134,82 @@ class BlueAuto1 extends LinearOpMode {
 
     }
     public void beaconCheckBlue(){
+        //
+
+        robot.ne.setPower(.75);
+        robot.nw.setPower(.75);
+        robot.se.setPower(-.75);
+        robot.sw.setPower(-.75);
         robot.runtime.reset();
         while (robot.runtime.milliseconds() < 1500) {
+//            robot.drive(90, .75, 0);
             if (!opModeIsActive()) return;
             telemetry.addData("Sensor", robot.colorEast.blue());
             telemetry.update();
 
 
-            if (robot.colorEast.blue() >= 2) {
+            if (robot.colorEast.blue() >= 1) {
                 if (!opModeIsActive()) return;
                 robot.buttonPressEast.setPosition(.9);
                 telemetry.addData("Sensor", robot.colorEast.blue());
                 telemetry.update();
             }
-            else if(robot.colorEast.blue() <= 1){
+            else if(robot.colorEast.blue() < 1){
                 robot.buttonPressEast.setPosition(.627);
             }
             //while(robot.runtime.milliseconds() - 2000 < 200){}
-            robot.drive(90, .75, 0);
-
-
-
         }
+        robot.stop();
         robot.runtime.reset();
-        while(robot.runtime.milliseconds() < 200){
+        while(robot.runtime.milliseconds() < 400){
             if(!opModeIsActive()) return;
             robot.drive(270, .8, 0);
         }
+        robot.stop();
     }
-    public void lineCheck(int direction){
-        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5) {
+    public void lineCheck(double direction, int time){
+        robot.runtime.reset();
+        while((robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5) && robot.runtime.milliseconds() <= time) {
             if (!opModeIsActive()) return;
-            double power = .15;
+            double power = .1;
 
 
-            if (robot.eLineSensor.getVoltage() < 1.5) {
+            if (robot.wLineSensor.getVoltage() < 1.5) {
                 robot.nw.setPower(power*direction);
                 robot.sw.setPower(power*direction);
 
             } else {
-                robot.nw.setPower(-power*direction);
-                robot.sw.setPower(-power*direction);
+                robot.nw.setPower(-6*power*direction);
+                robot.sw.setPower(-6*power*direction);
 
             }
-            if (robot.wLineSensor.getVoltage() < 1.5) {
+            if (robot.eLineSensor.getVoltage() < 1.5) {
                 robot.ne.setPower(-power*direction);
                 robot.se.setPower(-power*direction);
             } else {
-                robot.ne.setPower(power*direction);
-                robot.se.setPower(power*direction);
+                robot.ne.setPower(6*power*direction);
+                robot.se.setPower(6*power*direction);
 
             }
 
 
         }
+        /*int encoder = robot.se.getCurrentPosition();
+        while(Math.abs(encoder)+25 > Math.abs(robot.se.getCurrentPosition())){
+            if(!opModeIsActive()) return;
+            robot.drive(180, .75, robot.gyroRot());
+        }*/
         robot.runtime.reset();
 
         robot.stop();
     }
-    public void brake(){
+    public void brake(int time){
         robot.runtime.reset();
         robot.ne.setPower(Range.clip(-robot.ne.getPower()*100,-1,1));
         robot.se.setPower(Range.clip(-robot.se.getPower()*100,-1,1));
         robot.nw.setPower(Range.clip(-robot.nw.getPower()*100,-1,1));
         robot.sw.setPower(Range.clip(-robot.sw.getPower()*100,-1,1));
-        while (robot.runtime.milliseconds() <= 150) {
+        while (robot.runtime.milliseconds() <= time) {
             if(!opModeIsActive()) return;
 
             //Just to add some extra time

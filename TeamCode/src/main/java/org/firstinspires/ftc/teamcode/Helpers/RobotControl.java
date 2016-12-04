@@ -25,10 +25,10 @@ public class RobotControl{
     private final HardwareMap hardwareMap;
     private LinearOpMode linearOpMode = null;
     public DcMotor ne, se, sw, nw, harvester, flyWheelEast, flyWheelWest, capBall;
-    public ColorSensor colorEast, colorWest;
-    public CRServo ballFeeder;
-    public Servo hood, buttonPressEast, liftStopEast, liftStopWest;
-    public AnalogInput eLineSensor,wLineSensor, wallSensor, feedSwitch, SaddleSwitch;
+    public ModernRoboticsI2cColorSensor colorEast, colorWest;
+    public CRServo ballFeeder, capBallG;
+    public Servo hood, buttonPressEast, liftStopEast, liftStopWest, buttonPressWest;
+    public AnalogInput eLineSensor,wLineSensor, wallSensor, feedSwitch, SaddleSwitch, wallSensorWest;
     public ElapsedTime runtime;
     public GyroSensor gyro;
     public ElapsedTime counter;
@@ -48,29 +48,38 @@ public class RobotControl{
         this.harvester = this.hardwareMap.dcMotor.get("harvester");
         this.hood = this.hardwareMap.servo.get("hood");
         this.buttonPressEast = this.hardwareMap.servo.get("buttonPressEast");
+        this.buttonPressWest = this.hardwareMap.servo.get("bpw");
         this.ballFeeder = this.hardwareMap.crservo.get("ballFeeder");
-        this.colorEast = this.hardwareMap.colorSensor.get("colorEast");
+        this.colorEast = (ModernRoboticsI2cColorSensor) this.hardwareMap.colorSensor.get("colorEast");
         this.gyro = this.hardwareMap.gyroSensor.get("gyro");
-//        this.colorWest = this.hardwareMap.colorSensor.get("colorWest");
+        this.colorWest = (ModernRoboticsI2cColorSensor) this.hardwareMap.colorSensor.get("colorWest");
         this.wallSensor = this.hardwareMap.analogInput.get("ultra");
+        this.capBallG = this.hardwareMap.crservo.get("cbg");
+        this.wallSensorWest = this.hardwareMap.analogInput.get("ultraWest");
         this.SaddleSwitch = this.hardwareMap.analogInput.get("ss");
         this.capBall = this.hardwareMap.dcMotor.get("cb");
-        //this.ultra = this.hardwareMap.analogInput.get("utra")
         this.eLineSensor = this.hardwareMap.analogInput.get("eLineSensor");
         this.wLineSensor = this.hardwareMap.analogInput.get("wLineSensor");
-        //this.liftStopEast = this.hardwareMap.servo.get("liftStopEast");
-        //this.liftStopWest = this.hardwareMap.servo.get("liftStopWest");
+        this.liftStopEast = this.hardwareMap.servo.get("lse");
+        this.liftStopWest = this.hardwareMap.servo.get("lsw");
 
         this.runtime = new ElapsedTime();
         this.counter = new ElapsedTime();
         this.flyWheelWest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.flyWheelEast.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //gyro.calibrate();
-        //this.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
-        //colorEast.enableLed(true);
+        this.liftStopWest.setPosition(0.42);
+        this.liftStopEast.setPosition(.5);
+        this.buttonPressEast.setPosition(.9);
+        this.buttonPressWest.setPosition(.672);
+        this.colorEast.setI2cAddress(I2cAddr.create8bit(0x4c));
+        this.colorWest.setI2cAddress(I2cAddr.create8bit(0x5c));
+        colorEast.enableLed(false);
+        colorWest.enableLed(false);
 
 
-        //buttonPressEast.setPosition(235 / 255);
+
+        //buttonPressWest.setPosition(235 / 255);
     }
 
 //    public void drive()
@@ -158,11 +167,11 @@ public class RobotControl{
         /*while(wallSensor.getVoltage() > .55){
             drive(-90, .75, 0);
         }*/
-        /*if(colorEast.blue() >=2){
-            buttonPressEast.setPosition(235/255);
+        /*if(colorWest.blue() >=2){
+            buttonPressWest.setPosition(235/255);
         }
         else{
-            buttonPressEast.setPosition(155/255);
+            buttonPressWest.setPosition(155/255);
         }*/
 
     }
@@ -200,14 +209,7 @@ public class RobotControl{
     }
 
 
-//    public void beaconCheckWest(){
-//        if(colorWest.alpha() <=11 || colorEast.alpha() >= 10){
-//            //Swivel down relative to color sensor
-//        }
-//        else{
-//            //Swivel up relative to color sensor
-//        }
-//    }
+
 
 
 

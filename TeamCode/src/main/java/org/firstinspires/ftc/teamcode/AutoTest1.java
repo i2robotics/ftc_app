@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -52,6 +53,7 @@ import java.io.OptionalDataException;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoTest1", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Disabled
 
 public class AutoTest1 extends LinearOpMode {
     RobotControl robot;
@@ -62,15 +64,17 @@ public class AutoTest1 extends LinearOpMode {
         robot = new RobotControl(this);
             robot.gyro.calibrate();
             while (robot.gyro.isCalibrating()) {
-                telemetry.addData("Gyro heading", robot.gyro.getHeading());
-                telemetry.update();
+
 
             }
+        telemetry.addData("Gyro heading", robot.gyro.getHeading());
+        telemetry.addData("Color", robot.colorEast.blue());
+        telemetry.update();
         robot.buttonPressEast.setPosition(.9);
 
 
         waitForStart();
-
+ /*
         if (robot.gyro.getHeading() != 0) {
             robot.gyro.calibrate();
             while (robot.gyro.isCalibrating()) {
@@ -92,14 +96,15 @@ public class AutoTest1 extends LinearOpMode {
 
             }
             brake();
-            lineCheck(1);
+            lineCheck(1);*/
             beaconCheckBlue();
+        /*
         encoder =  robot.se.getCurrentPosition();
         while(Math.abs(encoder)+500 > Math.abs(robot.se.getCurrentPosition())) {
             if(!opModeIsActive()) return;
             robot.drive(180, 1, robot.gyroRot());
         }
-        /*
+
         lineCheck(-1);
         beaconCheckBlue();
         robot.runtime.reset();
@@ -219,15 +224,13 @@ public class AutoTest1 extends LinearOpMode {
         robot.runtime.reset();
         while (robot.runtime.milliseconds() < 1500) {
             if (!opModeIsActive()) return;
-            telemetry.addData("Sensor", robot.colorEast.blue());
-            telemetry.update();
+
 
 
             if (robot.colorEast.blue() >= 2) {
                 if (!opModeIsActive()) return;
                 robot.buttonPressEast.setPosition(.9);
-                telemetry.addData("Sensor", robot.colorEast.blue());
-                telemetry.update();
+
             }
             else if(robot.colorEast.blue() <= 1){
                 robot.buttonPressEast.setPosition(.627);

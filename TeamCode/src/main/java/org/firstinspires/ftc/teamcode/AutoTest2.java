@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Helpers.RobotControl;
 /**
  * Created by Nathanael on 10/29/2016.
  */
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoTest2", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 
 public class AutoTest2 extends LinearOpMode {
@@ -17,11 +21,11 @@ public class AutoTest2 extends LinearOpMode {
     //RobotControl robot;
     public ElapsedTime runtime;
     RobotControl robot;
-    ColorSensor colorEast;
+    ModernRoboticsI2cColorSensor colorEast;
 
     public void runOpMode() throws InterruptedException {
-        this.colorEast = this.hardwareMap.colorSensor.get("colorEast");
         robot = new RobotControl(this);
+        this.colorEast = (ModernRoboticsI2cColorSensor) this.hardwareMap.colorSensor.get("colorEast");
         robot.buttonPressEast.setPosition(.9);
         //robot.colorEast.setI2cAddress(I2cAddr.create8bit(0x6c));
         colorEast.enableLed(true);
@@ -30,6 +34,8 @@ public class AutoTest2 extends LinearOpMode {
         telemetry.addData("Sensor", colorEast.blue());
         telemetry.update();
         waitForStart();
+
+
 //        while(robot.eLineSensor.getVoltage() < 1.5 || robot.wLineSensor.getVoltage()  < 1.5){
 //            if(!opModeIsActive()) return;
 //
@@ -75,10 +81,11 @@ public class AutoTest2 extends LinearOpMode {
 //
 //            }
         robot.runtime.reset();
-        while(robot.runtime.milliseconds() < 20000){
+        while(opModeIsActive()){
             if(!opModeIsActive()) return;
             telemetry.addData("Blue Color", colorEast.blue());
             telemetry.addData("All Color", colorEast.argb());
+            telemetry.addData("Device", colorEast.getDeviceName());
 
         }
         }

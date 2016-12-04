@@ -40,24 +40,41 @@ import org.firstinspires.ftc.teamcode.Helpers.RobotControl;
 
 
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop Testing", group="Test")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop", group="Test")
 public class TeleOpTest1 extends LinearOpMode {
     @Override
     public void runOpMode() {
         RobotControl robot = new RobotControl(this);
-        robot.hood.setPosition(0.4);
+        robot.hood.setPosition(0.94);
+
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         double hoodPos = 0;
         double speed = 1;
         double ShooterRPM = 1000;
+        double distanceTiles = 6850;
+        boolean Endgame = false;
         while (opModeIsActive()) {
+            if (gamepad1.dpad_up) {
+                robot.capBallG.setPower(1);
+            } else if (gamepad1.dpad_down) {
+                robot.capBallG.setPower(-1);
+            } else {
+                robot.capBallG.setPower(0);
+            }
             if (gamepad1.b) {
                 speed = 0.625;
             } else if (gamepad1.x) {
                 speed = 1;
             } else if (gamepad1.y) {
                 speed = 0.5;
+            }
+            if (gamepad1.back) {
+                Endgame = true;
+            }
+
+            if (gamepad2.y){
+                robot.startFlyWheel(-1);
             }
             //Gamepad 1 will control the movement and harvester.
             robot.setMotors((float) (gamepad1.left_stick_x*speed), (float) (gamepad1.left_stick_y*speed), (float) (gamepad1.right_stick_x*speed));
@@ -97,23 +114,30 @@ public class TeleOpTest1 extends LinearOpMode {
                 robot.hood.setPosition(hoodPos);
             }
             if (gamepad2.dpad_left) {
-                ShooterRPM -= 5;
-                ShooterRPM = Range.clip(ShooterRPM,0,10000);
+                distanceTiles -= 5;
+                distanceTiles = Range.clip(distanceTiles,0,10000);
             }  if (gamepad2.dpad_right) {
-                ShooterRPM += 5;
-                ShooterRPM = Range.clip(ShooterRPM,0,10000);
+                distanceTiles += 5;
+                distanceTiles = Range.clip(distanceTiles,0,10000);
             }
-            if (gamepad1.right_trigger >= 0.1) {
-                robot.capBall.setPower(1);
-            } else if (gamepad1.right_bumper) {
-                robot.capBall.setPower(-1);
-            } else {
-                robot.capBall.setPower(0);
+            ShooterRPM = distanceTiles;
+            if (Endgame) {
+                if (gamepad1.right_trigger >= 0.1) {
+                    robot.capBall.setPower(1);
+                } else if (gamepad1.right_bumper) {
+                    robot.capBall.setPower(-1);
+                } else {
+                    robot.capBall.setPower(0);
+                }
+                robot.liftStopEast.setPosition(1);
+                robot.liftStopWest.setPosition(0);
             }
 
             telemetry.addData("Shooter RPM", ShooterRPM);
             telemetry.addData("Wheel Speed", speed);
             telemetry.addData("Servo Position", hoodPos);
+            telemetry.addData("Endgame", Endgame);
+
             telemetry.update();
             idle();
         }
