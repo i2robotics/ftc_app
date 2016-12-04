@@ -88,9 +88,15 @@ public class TeleOpTest1 extends LinearOpMode {
             //Gamepad 2 will control shooter mechanisms, like flywheel, ball lift and aiming lid servo
 
              if (gamepad1.right_trigger >= 0.1){
-                 robot.startFlyWheel(-250);
+                 robot.flyWheelWest.setPower(0);
+                 robot.flyWheelEast.setPower(0);
              } else if (gamepad2.left_bumper) {
-                 robot.startFlyWheel(-250);
+
+                 robot.flyWheelWest.setPower(0);
+                 robot.flyWheelEast.setPower(0);
+             } else if (gamepad2.y) {
+                 robot.flyWheelWest.setPower(-0.25);
+                 robot.ballFeeder.setPower(-0.25);
              } else {
                  robot.startFlyWheel(ShooterRPM);
              }
