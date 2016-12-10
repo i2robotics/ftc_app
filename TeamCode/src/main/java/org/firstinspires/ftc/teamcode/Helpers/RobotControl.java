@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -76,6 +77,8 @@ public class RobotControl{
         this.colorWest.setI2cAddress(I2cAddr.create8bit(0x5c));
         colorEast.enableLed(false);
         colorWest.enableLed(false);
+        //flyWheelWest.setDirection(DcMotorSimple.Direction.REVERSE);
+        //flyWheelEast.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
 
@@ -139,6 +142,7 @@ public class RobotControl{
    public double startFlyWheel(double speed){
         int CPS;
         CPS = (int) (28*((speed*6)/7))/60;
+
         /*if (counter.milliseconds() >= 50) {
            flyWheelEast.setPower(-Range.clip((float) Math.pow(10,-10)*Math.pow(((1000*(flyWheelEast.getCurrentPosition()-eastCount)/(counter.milliseconds()))-CPS),3), -1, 1));
            flyWheelWest.setPower(Range.clip((float) Math.pow(10,-10)*Math.pow((((1000*Math.abs(flyWheelWest.getCurrentPosition()-westCount)/(counter.milliseconds()))-CPS)),3), -1, 1));
@@ -148,7 +152,7 @@ public class RobotControl{
         }
         return (2500*((flyWheelWest.getCurrentPosition()-westCount)/(counter.milliseconds())));*/
         flyWheelWest.setMaxSpeed((int) (CPS));
-        flyWheelEast.setMaxSpeed((int)(CPS * .5));
+        flyWheelEast.setMaxSpeed((int)(CPS));
         flyWheelWest.setPower(-1);
         flyWheelEast.setPower(1);
         return 1;

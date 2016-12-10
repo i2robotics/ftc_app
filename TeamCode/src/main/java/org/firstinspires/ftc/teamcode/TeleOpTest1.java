@@ -47,6 +47,7 @@ public class TeleOpTest1 extends LinearOpMode {
         RobotControl robot = new RobotControl(this);
         robot.hood.setPosition(0.94);
 
+
         waitForStart();
         // run until the end of the mane = hardwareMap.dcMotor.get("ne");tch (driver presses STOP)
         double hoodPos = 0;
@@ -77,7 +78,7 @@ public class TeleOpTest1 extends LinearOpMode {
                 robot.startFlyWheel(-1);
             }
             //Gamepad 1 will control the movement and harvester.
-            robot.setMotors((float) (gamepad1.left_stick_x*speed), (float) (gamepad1.left_stick_y*speed), (float) (gamepad1.right_stick_x*speed));
+            robot.setMotors((float) (gamepad1.left_stick_x), (float) (gamepad1.left_stick_y*speed), (float) (gamepad1.right_stick_x*speed));
             if(gamepad1.left_trigger > 0.1){
                 robot.harvester.setPower(-1);
             } else if (gamepad1.left_bumper){
@@ -111,20 +112,20 @@ public class TeleOpTest1 extends LinearOpMode {
             }
             if(gamepad2.dpad_up){
                 hoodPos += .005;
-                hoodPos = Range.clip(hoodPos,.4,1);
+                hoodPos = Range.clip(hoodPos,.4-.34,1);
                 robot.hood.setPosition(hoodPos);
             }
             else if(gamepad2.dpad_down){
                 hoodPos -= .005;
-                hoodPos = Range.clip(hoodPos,.4,1);
+                hoodPos = Range.clip(hoodPos,.4-.34,1);
                 robot.hood.setPosition(hoodPos);
             }
             if (gamepad2.dpad_left) {
                 distanceTiles -= 5;
-                distanceTiles = Range.clip(distanceTiles,0,10000);
+                distanceTiles = Range.clip(distanceTiles,0,1000000);
             }  if (gamepad2.dpad_right) {
                 distanceTiles += 5;
-                distanceTiles = Range.clip(distanceTiles,0,10000);
+                distanceTiles = Range.clip(distanceTiles,0,1000000);
             }
             ShooterRPM = distanceTiles;
             if (Endgame) {
@@ -141,7 +142,7 @@ public class TeleOpTest1 extends LinearOpMode {
 
             telemetry.addData("Shooter RPM", ShooterRPM);
             telemetry.addData("Wheel Speed", speed);
-            telemetry.addData("Servo Position", hoodPos);
+            telemetry.addData("Servo Position", hoodPos-.34);
             telemetry.addData("Endgame", Endgame);
 
             telemetry.update();
