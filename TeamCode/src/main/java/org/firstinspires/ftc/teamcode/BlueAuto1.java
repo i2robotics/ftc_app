@@ -36,7 +36,7 @@ class BlueAuto1 extends LinearOpMode {
         //System.out.println("Starting! Woo Hoo!");
         //Start up the flywheel and position the hood for the firing of the particles
 
-/*
+
         robot.startFlyWheel(8900);
         robot.hood.setPosition(.49);
 
@@ -89,7 +89,7 @@ class BlueAuto1 extends LinearOpMode {
 
         robot.runtime.reset();
         robot.stop();
-*/
+
 
 
 
@@ -152,16 +152,24 @@ class BlueAuto1 extends LinearOpMode {
         double rot;
         double ang;
         robot.runtime.reset();
-        robot.drive(90, .75, 0);
+
+        boolean setPos = false;
         while (robot.runtime.milliseconds() < 1500) {
-            if (robot.colorEast.blue() > 1) {
+            robot.drive(90, .75, 0);
+            if (robot.colorEast.blue() > 1 && !setPos) {
                 if (!opModeIsActive()) return;
                 robot.buttonPressEast.setPosition(.9);
+
+                setPos = true;
+
+
                 telemetry.addData("Sensor", robot.colorEast.blue());
                 telemetry.update();
             }
             else if(robot.colorEast.blue() <= 1){
                 robot.buttonPressEast.setPosition(.627);
+                setPos = true;
+
             }
             /*if(robot.colorEast.blue() > 1){
                 rot = -.05;
@@ -173,6 +181,7 @@ class BlueAuto1 extends LinearOpMode {
             }*/
 
             if (!opModeIsActive()) return;
+            /*
             telemetry.addData("Sensor", robot.colorEast.blue());
             telemetry.update();
             if (robot.colorEast.blue() > 1) {
@@ -183,7 +192,7 @@ class BlueAuto1 extends LinearOpMode {
             }
             else if(robot.colorEast.blue() <= 1) {
                 robot.buttonPressEast.setPosition(.627);
-            }
+            }*/
         }
         robot.stop();
         robot.runtime.reset();
@@ -199,7 +208,7 @@ class BlueAuto1 extends LinearOpMode {
     public void lineCheck(double direction){
         double eLineVoltage;
         double wLineVoltage;
-        double power = .45;
+        double power = .38;
 
         while ((robot.eLineSensor.getVoltage() < 1.5 && robot.wLineSensor.getVoltage() < 1.5)) {
 
@@ -219,7 +228,7 @@ class BlueAuto1 extends LinearOpMode {
             while((robot.eLineSensor.getVoltage() < 1.5 && robot.wLineSensor.getVoltage() < 1.5)) {
 
                 if(!opModeIsActive()) return;
-                robot.drive(180, power/1.12, robot.gyroRot());
+                robot.drive(180, power/1.05, robot.gyroRot());
 
             }
 

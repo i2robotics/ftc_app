@@ -30,8 +30,9 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Helpers;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.Range;
 
@@ -41,11 +42,12 @@ import org.firstinspires.ftc.teamcode.Helpers.RobotControl;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Teleop", group="Test")
-public class TeleOpTest1 extends LinearOpMode {
+@Disabled
+public class TeleOpTest2 extends LinearOpMode {
     @Override
     public void runOpMode() {
         RobotControl robot = new RobotControl(this);
-        robot.hood.setPosition(0);
+        robot.hood.setPosition(0.94);
 
 
         waitForStart();
@@ -55,10 +57,8 @@ public class TeleOpTest1 extends LinearOpMode {
         double ShooterRPM = 1000;
         double distanceTiles = 6850;
         boolean Endgame = false;
-        boolean UP = false;
-        boolean isCapBallClamped = false;
-        while (opModeIsActive()) {/*
-            if (gamepad1.dpad_up) {
+        while (opModeIsActive()) {
+            /*if (gamepad1.dpad_up) {
                 robot.capBallG.setPower(1);
             } else if (gamepad1.dpad_down) {
                 robot.capBallG.setPower(-1);
@@ -74,7 +74,6 @@ public class TeleOpTest1 extends LinearOpMode {
             }
             if (gamepad1.back) {
                 Endgame = true;
-                UP = true;
             }
 
             if (gamepad2.y){
@@ -132,8 +131,6 @@ public class TeleOpTest1 extends LinearOpMode {
             }
             ShooterRPM = distanceTiles;
             if (Endgame) {
-                robot.liftStopEast.setPosition(1);
-                robot.liftStopWest.setPosition(0);
                 if (gamepad1.right_trigger >= 0.1) {
                     robot.capBall.setPower(1);
                 } else if (gamepad1.right_bumper) {
@@ -141,26 +138,18 @@ public class TeleOpTest1 extends LinearOpMode {
                 } else {
                     robot.capBall.setPower(0);
                 }
-
+                robot.liftStopEast.setPosition(1);
+                robot.liftStopWest.setPosition(0);
             }
-            if (gamepad1.a) {
-                robot.capBallCap.setPosition(0.7);
-            } else if (gamepad1.dpad_down) {
-                robot.capBallCap.setPosition(0.0);
-            } else if (UP) {
-                robot.capBallCap.setPosition(1);
-                UP = false;
-            }
-
 
             telemetry.addData("Shooter RPM", ShooterRPM);
             telemetry.addData("Wheel Speed", speed);
             telemetry.addData("Servo Position", hoodPos-.34);
+            telemetry.addData("Servo Press", robot.buttonPressWest.getPosition());
             telemetry.addData("Endgame", Endgame);
 
             telemetry.update();
             idle();
         }
-        }
     }
-
+}

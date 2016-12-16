@@ -23,7 +23,7 @@ public class RedAuto1 extends LinearOpMode {
         //System.out.println("Starting! Woo Hoo!");
         //Start up the flywheel and position the hood for the firing of the particles
 
-/*
+        /*
         robot.startFlyWheel(8900);
         robot.hood.setPosition(.49);
 
@@ -76,7 +76,7 @@ public class RedAuto1 extends LinearOpMode {
 
         robot.runtime.reset();
         robot.stop();
-*/
+        */
 
 
 
@@ -89,11 +89,16 @@ public class RedAuto1 extends LinearOpMode {
 
 
 
-        while(robot.wallSensor.getVoltage() > .097) {
+
+
+        while(robot.wallSensorWest.getVoltage() > .097) {
             System.out.println("Driving at the angle");
             if(!opModeIsActive()) return;
-            robot.drive(-47, 1, robot.gyroRot());
+            robot.drive(360-47, 1, robot.gyroRot()*2);
+            telemetry.addData("Gyro Rot", robot.gyroRot()*2);
             telemetry.addData("Gyro: ", robot.gyro.getHeading());
+            telemetry.addData("Wall:", robot.wallSensorWest.getVoltage());
+            telemetry.update();
             // Drive it at a 45 degree angle from the starting position
         }
         lineCheck(1);
@@ -140,16 +145,21 @@ public class RedAuto1 extends LinearOpMode {
         double ang;
         robot.runtime.reset();
         robot.drive(-90, .75, 0);
+        boolean setPos = false;
         while (robot.runtime.milliseconds() < 1500) {
 
-            if (robot.colorWest.blue() > 1) {
+            if (robot.colorWest.blue() > 1 && !setPos) {
                 if (!opModeIsActive()) return;
-                robot.buttonPressWest.setPosition(.627);
+
+                robot.buttonPressWest.setPosition(1);
+                setPos = true;
+
                 telemetry.addData("Sensor", robot.colorWest.blue());
                 telemetry.update();
             }
-            else if(robot.colorWest.blue() <= 1){
-                robot.buttonPressWest.setPosition(.9);
+            else if(robot.colorWest.blue() <= 1 && !setPos){
+                robot.buttonPressWest.setPosition(.627);
+                setPos = false;
 
             }
             /*if(robot.colorWest.blue() > 1){
@@ -180,7 +190,7 @@ public class RedAuto1 extends LinearOpMode {
         robot.runtime.reset();
         while(robot.runtime.milliseconds() < 400){
             if(!opModeIsActive()) return;
-            robot.drive(270, .8, 0);
+            robot.drive(90, .8, 0);
         }
         robot.stop();
     }
@@ -190,7 +200,7 @@ public class RedAuto1 extends LinearOpMode {
     public void lineCheck(double direction){
         double eLineVoltage;
         double wLineVoltage;
-        double power = .45;
+        double power = .38;
 
         while ((robot.eLineSensor.getVoltage() < 1.5 && robot.wLineSensor.getVoltage() < 1.5)) {
 
@@ -205,14 +215,20 @@ public class RedAuto1 extends LinearOpMode {
 
         robot.runtime.reset();
 
-        while(robot.runtime.milliseconds() < 375);
+        /*while(robot.runtime.milliseconds() < 375);
 
         while((robot.eLineSensor.getVoltage() < 1.5 && robot.wLineSensor.getVoltage() < 1.5)) {
 
             if(!opModeIsActive()) return;
-            robot.drive(180, power/1.12, robot.gyroRot());
+            robot.drive(180, power/1.05, robot.gyroRot());
 
         }
+        robot.stop();
+        while(robot.runtime.milliseconds() < 375);
+        while(robot.eLineSensor.getVoltage() < 1.5 && robot.wLineSensor.getVoltage() < 1.5){
+            if(!opModeIsActive()) return;
+            robot.drive(0, power/1.05, robot.gyroRot());
+        }*/
 
 
         robot.stop();

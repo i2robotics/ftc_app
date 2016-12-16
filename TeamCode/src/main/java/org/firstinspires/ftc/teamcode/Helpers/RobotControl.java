@@ -27,8 +27,8 @@ public class RobotControl{
     private LinearOpMode linearOpMode = null;
     public DcMotor ne, se, sw, nw, harvester, flyWheelEast, flyWheelWest, capBall;
     public ModernRoboticsI2cColorSensor colorEast, colorWest;
-    public CRServo ballFeeder, capBallG;
-    public Servo hood, buttonPressEast, liftStopEast, liftStopWest, buttonPressWest;
+    public CRServo ballFeeder;
+    public Servo hood, buttonPressEast, liftStopEast, liftStopWest, buttonPressWest, capBallCap;
     public AnalogInput eLineSensor,wLineSensor, wallSensor, feedSwitch, SaddleSwitch, wallSensorWest;
     public ElapsedTime runtime;
     public GyroSensor gyro;
@@ -55,7 +55,6 @@ public class RobotControl{
         this.gyro = this.hardwareMap.gyroSensor.get("gyro");
         this.colorWest = (ModernRoboticsI2cColorSensor) this.hardwareMap.colorSensor.get("colorWest");
         this.wallSensor = this.hardwareMap.analogInput.get("ultra");
-        this.capBallG = this.hardwareMap.crservo.get("cbg");
         this.wallSensorWest = this.hardwareMap.analogInput.get("ultraWest");
         this.SaddleSwitch = this.hardwareMap.analogInput.get("ss");
         this.capBall = this.hardwareMap.dcMotor.get("cb");
@@ -63,6 +62,7 @@ public class RobotControl{
         this.wLineSensor = this.hardwareMap.analogInput.get("wLineSensor");
         this.liftStopEast = this.hardwareMap.servo.get("lse");
         this.liftStopWest = this.hardwareMap.servo.get("lsw");
+        this.capBallCap = this.hardwareMap.servo.get("cbg");
 
         this.runtime = new ElapsedTime();
         this.counter = new ElapsedTime();
